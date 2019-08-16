@@ -2,9 +2,12 @@ package com.function.hollan;
 
 import com.microsoft.azure.functions.annotation.*;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -32,6 +35,15 @@ public class CosmosDbFunctionPotential2 {
         context.getLogger().info("Documents count: " + items.length);
 
         // Do some work
+        final ProducerRecord<String, String> record = new ProducerRecord<String, String>(EVENTHUB, "Some Key", "Some Message");
+        producer.send(record, new Callback() {
+            public void onCompletion(RecordMetadata metadata, Exception exception) {
+                if (exception != null) {
+                    System.out.println(exception);
+                    System.exit(1);
+                }
+            }
+        });
     }
 
     private static Producer<String, String> createProducer() {
